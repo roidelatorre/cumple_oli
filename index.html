@@ -133,8 +133,9 @@
     height:100%;
     border:0;
     outline:0;
-    background:transparent;
+    background:#fff8ff;
     padding:0 5%;
+    border-radius:3px;
     color:#5a2c74;
     font:700 clamp(10px,1.65vw,20px) "Courier New",monospace;
   }
@@ -182,6 +183,48 @@
     .poster{box-shadow:none}
     .mobile-jump{display:block}
   }
+
+  .mobile-actions,
+  .mobile-rsvp{display:none;}
+
+  @media(max-width:700px){
+    html,body{width:100%;overflow-x:hidden;}
+    .page{width:100%;padding:0;}
+    .poster{width:100vw;max-width:100vw;box-shadow:none;}
+    .game-wrap{left:3.2%;width:93.6%;}
+    .hud{left:4.5%;width:91%;}
+    .score-block{gap:12px;font-size:clamp(8px,2.5vw,12px);}
+    .lives{font-size:clamp(10px,3vw,14px);}
+    .controls-note,.form-overlay,.confirm-msg,.mobile-jump{display:none;}
+    .mobile-actions{
+      display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:10px;
+      position:sticky;bottom:0;z-index:20;padding:10px;
+      background:rgba(8,3,42,.94);border-top:3px solid #ff4ab7;backdrop-filter:blur(8px);
+    }
+    .mobile-actions button{
+      min-height:54px;border:3px solid #fff;outline:3px solid #7f3cdb;
+      color:#fff;background:#7f3cdb;font:900 14px "Courier New",monospace;
+      text-transform:uppercase;box-shadow:3px 3px 0 #02010a;
+    }
+    .mobile-actions .jump-main{background:#54e9ff;color:#30134a;font-size:16px;}
+    .mobile-rsvp{
+      display:block;margin:14px 10px 86px;padding:14px;color:#4a1765;
+      background:linear-gradient(90deg,#ffb4df,#f2a8da);
+      border:4px solid #fff;outline:4px solid #ff4ab7;box-shadow:6px 6px 0 #02010a;
+    }
+    .mobile-rsvp h2{margin:0 0 10px;text-align:center;font-size:16px;text-transform:uppercase;}
+    .mobile-rsvp .mobile-form{display:grid;grid-template-columns:1fr;gap:10px;}
+    .mobile-rsvp input{
+      width:100%;min-height:52px;padding:0 12px;border:3px solid #fff;outline:3px solid #7f3cdb;
+      color:#5a2c74;background:#fff8ff;font:700 16px "Courier New",monospace;
+    }
+    .mobile-rsvp button{
+      min-height:52px;border:3px solid #fff;outline:3px solid #7f3cdb;background:#ff4ab7;
+      color:#fff;font:900 16px "Courier New",monospace;text-transform:uppercase;
+    }
+    .mobile-confirm-msg{min-height:22px;margin-top:10px;text-align:center;font-weight:900;color:#5c1e79;}
+  }
+
 </style>
 </head>
 <body>
@@ -213,6 +256,21 @@
 </main>
 
 <button id="jumpBtn" class="mobile-jump" type="button">↑</button>
+
+<section class="mobile-rsvp" aria-label="Confirmación de asistencia">
+  <h2>💗 Si venís, ingresá tu mail 💗</h2>
+  <div class="mobile-form">
+    <input id="mobileEmail" type="email" placeholder="tu@mail.com" aria-label="Correo electrónico">
+    <button id="mobileConfirmBtn" type="button">Confirmar</button>
+  </div>
+  <div id="mobileConfirmMsg" class="mobile-confirm-msg" aria-live="polite"></div>
+</section>
+<div class="mobile-actions" aria-label="Controles del juego">
+  <button id="mobileStartBtn" type="button">Jugar</button>
+  <button id="mobileJumpBtn" class="jump-main" type="button">Saltar ↑</button>
+  <button id="mobileResetBtn" type="button">Reiniciar</button>
+</div>
+
 
 <script>
 const canvas=document.getElementById("game");
@@ -525,7 +583,24 @@ function draw(){
 function loop(){
   update();
   draw();
-  requestAnimationFrame(loop);
+  
+const mobileStartBtn=document.getElementById("mobileStartBtn");
+const mobileJumpBtn=document.getElementById("mobileJumpBtn");
+const mobileResetBtn=document.getElementById("mobileResetBtn");
+mobileStartBtn.addEventListener("click",startGame);
+mobileJumpBtn.addEventListener("click",jump);
+mobileResetBtn.addEventListener("click",resetGame);
+const mobileEmail=document.getElementById("mobileEmail");
+const mobileConfirmBtn=document.getElementById("mobileConfirmBtn");
+const mobileConfirmMsg=document.getElementById("mobileConfirmMsg");
+mobileConfirmBtn.addEventListener("click",()=>{
+  const valid=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mobileEmail.value.trim());
+  mobileConfirmMsg.textContent=valid
+    ?"💖 ¡CONFIRMADO! OLIVIA TE ESPERA PARA LA MISIÓN K‑POP 💖"
+    :"Ingresá un mail válido para confirmar.";
+});
+
+requestAnimationFrame(loop);
 }
 function startGame(){
   state="running";
